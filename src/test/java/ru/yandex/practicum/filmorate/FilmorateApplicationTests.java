@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
@@ -12,21 +11,17 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-class FilmorateApplicationTests {
-	@Test
-	void contextLoads() {}
-}
-class FilmControllerTest {
+class FilmorateApplicationTest {
 
 	private FilmController filmController;
+	private UserController userController;
 
 	@BeforeEach
 	void setUp() {
 		filmController = new FilmController();
+		userController = new UserController();
 	}
 
 	@Test
@@ -53,15 +48,6 @@ class FilmControllerTest {
 
 		ResponseEntity<List<Film>> response = filmController.getAllFilms();
 		assertEquals(2, response.getBody().size());
-	}
-}
-
-class UserControllerTest {
-	private UserController userController;
-
-	@BeforeEach
-	void setUp() {
-		userController = new UserController();
 	}
 
 	@Test
@@ -90,4 +76,3 @@ class UserControllerTest {
 		assertEquals(2, response.getBody().size());
 	}
 }
-
