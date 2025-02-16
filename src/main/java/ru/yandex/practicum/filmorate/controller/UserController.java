@@ -16,7 +16,7 @@ public class UserController {
     private long userIdCounter = 1;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> addUser(@RequestBody User user) {
         user.setId(userIdCounter++);
         users.put(user.getId(), user);
         log.info("Создан пользователь: {}", user);

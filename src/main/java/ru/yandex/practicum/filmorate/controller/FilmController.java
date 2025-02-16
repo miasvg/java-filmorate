@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+
+import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
@@ -17,6 +19,8 @@ public class FilmController {
 
     @PostMapping
     public ResponseEntity<Film> addFilm(@RequestBody Film film) {
+        LocalDate releaseDate = film.getReleaseDate();
+        film.validateReleaseDate(releaseDate);
         film.setId(filmIdCounter++);
         films.put(film.getId(), film);
         log.info("film added: {}", film);

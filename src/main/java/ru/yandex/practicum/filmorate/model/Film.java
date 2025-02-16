@@ -12,12 +12,20 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Film {
-    Long id;
+    private Long id;
     @NotBlank(message = "title can`t be empty")
-    String title;
+    private String title;
     @Size(max = 200, message = "Max description length is 200 symbols")
-    String description;
-    LocalDate releaseDate;
+    private String description;
+    private LocalDate releaseDate;
     @Positive(message = "Film duration can not be negative")
-    int duration;
+    private int duration;
+
+    public void validateReleaseDate(LocalDate releaseDate) {
+        LocalDate earliestDate = LocalDate.of(1895, 12, 28);
+        if (releaseDate.isBefore(earliestDate)) {
+            throw new IllegalArgumentException("Release date cannot be earlier than December 28, 1895");
+        }
+        this.releaseDate = releaseDate;
+    }
 }
