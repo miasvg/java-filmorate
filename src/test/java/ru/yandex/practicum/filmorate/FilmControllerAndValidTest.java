@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerAndValidTest {
@@ -20,7 +19,6 @@ public class FilmControllerAndValidTest {
     void testAddFilm() {
         Film film = new Film(null, "Test Film", "Description", LocalDate.of(2020, 1, 1), 120);
         ResponseEntity<Film> response = filmController.addFilm(film);
-
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody().getId());
     }
@@ -29,7 +27,6 @@ public class FilmControllerAndValidTest {
     void testUpdateFilmNotFound() {
         Film film = new Film(999L, "Updated Film", "Updated Description", LocalDate.of(2020, 1, 1), 120);
         ResponseEntity<Film> response = filmController.updateFilm(film);
-
         assertEquals(404, response.getStatusCodeValue());
     }
 
@@ -37,7 +34,6 @@ public class FilmControllerAndValidTest {
     void testGetAllFilms() {
         filmController.addFilm(new Film(null, "Film1", "Desc1", LocalDate.of(2021, 1, 1), 90));
         filmController.addFilm(new Film(null, "Film2", "Desc2", LocalDate.of(2022, 1, 1), 100));
-
         ResponseEntity<List<Film>> response = filmController.getAllFilms();
         assertEquals(2, response.getBody().size());
     }
