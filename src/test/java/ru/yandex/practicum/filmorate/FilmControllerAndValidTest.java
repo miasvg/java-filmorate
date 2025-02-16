@@ -11,10 +11,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerAndValidTest {
     private FilmController filmController;
+    
     @BeforeEach
     void setUp() {
         filmController = new FilmController();
     }
+
     @Test
     void testAddFilm() {
         Film film = new Film(null, "Test Film", "Description", LocalDate.of(2020, 1, 1), 120);
