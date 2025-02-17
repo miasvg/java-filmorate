@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerAndValidTest {
     private FilmController filmController;
-    
     @BeforeEach
     void setUp() {
         filmController = new FilmController();
@@ -39,6 +38,7 @@ public class FilmControllerAndValidTest {
         ResponseEntity<List<Film>> response = filmController.getAllFilms();
         assertEquals(2, response.getBody().size());
     }
+
     @Test
     void testAddFilmWithEmptyTitle() {
         Film film = new Film(null, "", "Description", LocalDate.of(2020, 1, 1), 120);

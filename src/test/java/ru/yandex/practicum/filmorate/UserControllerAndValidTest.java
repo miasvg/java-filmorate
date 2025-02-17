@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerAndValidTest {
@@ -21,7 +19,6 @@ public class UserControllerAndValidTest {
     void testCreateUser() {
         User user = new User(null, "test@example.com", "testUser", "Test Name", LocalDate.of(1990, 1, 1));
         ResponseEntity<User> response = userController.addUser(user);
-
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody().getId());
     }
