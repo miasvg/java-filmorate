@@ -11,10 +11,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerAndValidTest {
     UserController userController;
+
     @BeforeEach
     void setUp() {
         userController = new UserController();
-    }
+}
+
     @Test
     void testCreateUser() {
         User user = new User(null, "test@example.com", "testUser", "Test Name", LocalDate.of(1990, 1, 1));
@@ -35,10 +37,10 @@ public class UserControllerAndValidTest {
     void testGetAllUsers() {
         userController.addUser(new User(null, "user1@example.com", "user1", "User One", LocalDate.of(1985, 5, 5)));
         userController.addUser(new User(null, "user2@example.com", "user2", "User Two", LocalDate.of(1995, 6, 6)));
-
         ResponseEntity<List<User>> response = userController.getAllUsers();
         assertEquals(2, response.getBody().size());
     }
+
     @Test
     void testCreateUserWithInvalidEmail() {
         User user = new User(null, "invalid-email", "user123", "User Name", LocalDate.of(1990, 1, 1));
