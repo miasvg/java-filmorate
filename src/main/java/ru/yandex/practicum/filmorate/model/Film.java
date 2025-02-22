@@ -20,12 +20,4 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Film duration can not be negative")
     private int duration;
-
-    public void validateReleaseDate(LocalDate releaseDate) {
-        LocalDate earliestDate = LocalDate.of(1895, 12, 28);
-        if (releaseDate.isBefore(earliestDate)) {
-            throw new IllegalArgumentException("Release date cannot be earlier than December 28, 1895");
-        }
-        this.releaseDate = releaseDate;
-    }
 }

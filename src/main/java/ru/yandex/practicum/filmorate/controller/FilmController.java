@@ -20,7 +20,7 @@ public class FilmController {
     @PostMapping
     public ResponseEntity<Film> addFilm(@RequestBody Film film) {
         LocalDate releaseDate = film.getReleaseDate();
-        film.validateReleaseDate(releaseDate);
+        validateReleaseDate(releaseDate);
         film.setId(filmIdCounter++);
         films.put(film.getId(), film);
         log.info("film added: {}", film);
@@ -41,5 +41,12 @@ public class FilmController {
     @GetMapping
     public ResponseEntity<List<Film>> getAllFilms() {
         return ResponseEntity.ok(new ArrayList<>(films.values()));
+    }
+
+    public void validateReleaseDate(LocalDate releaseDate) {
+        LocalDate earliestDate = LocalDate.of(1895, 12, 28);
+        if (releaseDate.isBefore(earliestDate)) {
+            throw new IllegalArgumentException("Release date cannot be earlier than December 28, 1895");
+        }
     }
 }
