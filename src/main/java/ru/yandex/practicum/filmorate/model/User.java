@@ -12,12 +12,21 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
+    /**Unique user ID. */
     private Long id;
+
+    /**Users email address. */
     @Email(message = "Введенный email не соответствует формату email-адресов!")
     private String email;
+
+    /**Users login. */
     @NotBlank(message = "Логин не может быть пустым и содержать пробелы!")
     private String login;
+
+    /**Users name. */
     private String name;
+
+    /**Users birthday. */
     @Past(message = "Дата рождения не может быть в будущем!")
     private LocalDate birthday;
 }
