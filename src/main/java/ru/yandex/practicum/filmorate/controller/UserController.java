@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +39,9 @@ public class UserController {
      * @return created user.
       */
     @PostMapping
-    public ResponseEntity<User> addUser(@RequestBody final User user) {
+    public ResponseEntity<User> addUser(@Valid @RequestBody User user) {
+        getDisplayName(user);
+        user.setName(getDisplayName(user));
         user.setId(userIdCounter++);
         users.put(user.getId(), user);
         log.info("Создан пользователь: {}", user);
@@ -51,10 +55,13 @@ public class UserController {
      * @return the updated user if found, otherwise a 404 response.
      */
     @PutMapping
-    public ResponseEntity<User> updateUser(@RequestBody final User user) {
+    public ResponseEntity<?> updateUser(@Valid @RequestBody User user) {
         if (!users.containsKey(user.getId())) {
             log.warn("Попытка обновить несуществующего пользователя: {}", user);
-            return ResponseEntity.notFound().build();
+            // Возвращаем JSON с сообщением об ошибке
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Пользователь с ID " + user.getId() + " не найден.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
         users.put(user.getId(), user);
         log.info("Обновлен пользователь: {}", user);
@@ -68,6 +75,12 @@ public class UserController {
      */
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(new ArrayList<>(users.values()));
+        List<User> userList = new ArrayList<>(users.values());
+        userList.forEach(user -> user.setName(getDisplayName(user)));
+        return ResponseEntity.ok(userList);
+    }
+
+    private String getDisplayName(User user) {
+        return (user.getName() == null || user.getName().isBlank()) ? user.getLogin() : user.getName();
     }
 }

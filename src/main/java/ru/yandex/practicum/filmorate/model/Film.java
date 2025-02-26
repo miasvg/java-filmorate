@@ -20,7 +20,7 @@ public class Film {
 
     /** Title of the film. */
     @NotBlank(message = "title can`t be empty")
-    private String title;
+    private String name;
 
     /** Description of the film. */
     @Size(max = MAX_DESCRIPTION_LENGTH, message = "Length invalid")

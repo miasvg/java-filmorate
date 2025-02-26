@@ -1,21 +1,31 @@
 package ru.yandex.practicum.filmorate;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerAndValidTest {
     UserController userController;
+    private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    private final Validator validator = factory.getValidator();
 
     @BeforeEach
     void setUp() {
         userController = new UserController();
-}
+    }
 
     @Test
     void testCreateUser() {
@@ -28,9 +38,11 @@ public class UserControllerAndValidTest {
     @Test
     void testUpdateUserNotFound() {
         User user = new User(999L, "updated@example.com", "updatedUser", "Updated Name", LocalDate.of(1990, 1, 1));
-        ResponseEntity<User> response = userController.updateUser(user);
-
-        assertEquals(404, response.getStatusCodeValue());
+        ResponseEntity<?> response = userController.updateUser(user);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Map<String, String> errorResponse = (Map<String, String>) response.getBody();
+        assertNotNull(errorResponse);
+        assertEquals("Пользователь с ID 999 не найден.", errorResponse.get("error"));
     }
 
     @Test
@@ -43,22 +55,40 @@ public class UserControllerAndValidTest {
 
     @Test
     void testCreateUserWithInvalidEmail() {
-        User user = new User(null, "invalid-email", "user123", "User Name", LocalDate.of(1990, 1, 1));
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userController.addUser(user));
-        assertEquals("Invalid email format", exception.getMessage());
+        User user = new User();
+        user.setEmail("invalid-email"); // Некорректный email
+        user.setLogin("validLogin");
+        user.setName("Valid Name");
+        user.setBirthday(LocalDate.of(2000, 1, 1));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        ConstraintViolation<User> violation = violations.iterator().next();
+        assertEquals("Введенный email не соответствует формату email-адресов!", violation.getMessage());
     }
+
 
     @Test
     void testCreateUserWithEmptyLogin() {
-        User user = new User(null, "test@example.com", "", "User Name", LocalDate.of(1990, 1, 1));
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userController.addUser(user));
-        assertEquals("Login cannot be empty or contain spaces", exception.getMessage());
+        User user = new User();
+        user.setEmail("valid@example.com");
+        user.setLogin(""); // Пустой логин
+        user.setName("Valid Name");
+        user.setBirthday(LocalDate.of(2000, 1, 1));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertFalse(violations.isEmpty());
+        ConstraintViolation<User> violation = violations.iterator().next();
+        assertEquals("Логин не может содержать пробелы!", violation.getMessage());
     }
 
     @Test
     void testCreateUserWithFutureBirthday() {
-        User user = new User(null, "test@example.com", "user123", "User Name", LocalDate.of(2100, 1, 1));
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userController.addUser(user));
-        assertEquals("Birthday cannot be in the future", exception.getMessage());
+        User user = new User();
+        user.setEmail("valid@example.com");
+        user.setLogin("validLogin");
+        user.setName("Valid Name");
+        user.setBirthday(LocalDate.now().plusDays(1)); // День рождения в будущем
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertFalse(violations.isEmpty());
+        ConstraintViolation<User> violation = violations.iterator().next();
+        assertEquals("Дата рождения не может быть в будущем!", violation.getMessage());
     }
 }

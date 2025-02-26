@@ -1,16 +1,26 @@
 package ru.yandex.practicum.filmorate;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Map;
+import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.*;
 public class FilmControllerAndValidTest {
     private FilmController filmController;
+
+    private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    private final Validator validator = factory.getValidator();
 
     @BeforeEach
     void setUp() {
@@ -28,8 +38,11 @@ public class FilmControllerAndValidTest {
     @Test
     void testUpdateFilmNotFound() {
         Film film = new Film(999L, "Updated Film", "Updated Description", LocalDate.of(2020, 1, 1), 120);
-        ResponseEntity<Film> response = filmController.updateFilm(film);
-        assertEquals(404, response.getStatusCodeValue());
+        ResponseEntity<?> response = filmController.updateFilm(film);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Map<String, String> errorResponse = (Map<String, String>) response.getBody();
+        assertNotNull(errorResponse);
+        assertEquals("Фильм с ID 999 не найден.", errorResponse.get("error"));
     }
 
     @Test
@@ -40,12 +53,35 @@ public class FilmControllerAndValidTest {
         assertEquals(2, response.getBody().size());
     }
 
+
+        @Test
+        void testFilmWithEmptyTitleShouldFailValidation() {
+            // Создаем фильм с пустым заголовком
+            Film film = new Film();
+            film.setName(""); // Пустой заголовок
+            film.setDescription("Valid Description");
+            film.setReleaseDate(LocalDate.of(2000, 1, 1));
+            film.setDuration(120);
+            Set<ConstraintViolation<Film>> violations = validator.validate(film);
+            assertFalse(violations.isEmpty());
+            ConstraintViolation<Film> violation = violations.iterator().next();
+            assertEquals("title can`t be empty", violation.getMessage());
+        }
+
+
     @Test
-    void testAddFilmWithEmptyTitle() {
-        Film film = new Film(null, "", "Description", LocalDate.of(2020, 1, 1), 120);
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> filmController.addFilm(film));
-        assertEquals("title can't be empty", exception.getMessage());
+    void testAddFilmWithNegativeDuration() {
+        Film film = new Film();
+        film.setName("Valid Title");
+        film.setDescription("Valid Description");
+        film.setReleaseDate(LocalDate.of(2000, 1, 1));
+        film.setDuration(-120); // Отрицательная длительность
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(violations.isEmpty());
+        ConstraintViolation<Film> violation = violations.iterator().next();
+        assertEquals("Film duration can not be negative", violation.getMessage());
     }
+
 
     @Test
     void testAddFilmWithMaxDescriptionLength() {
@@ -59,13 +95,6 @@ public class FilmControllerAndValidTest {
     void testAddFilmWithInvalidReleaseDate() {
         Film film = new Film(null, "Invalid Film", "Description", LocalDate.of(1895, 12, 27), 120);
         Exception exception = assertThrows(IllegalArgumentException.class, () -> filmController.addFilm(film));
-        assertEquals("Release date cannot be earlier than December 28, 1895", exception.getMessage());
-    }
-
-    @Test
-    void testAddFilmWithNegativeDuration() {
-        Film film = new Film(null, "Valid Film", "Description", LocalDate.of(2020, 1, 1), -100);
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> filmController.addFilm(film));
-        assertEquals("Film duration cannot be negative", exception.getMessage());
+        assertEquals("Invalid release date", exception.getMessage());
     }
 }

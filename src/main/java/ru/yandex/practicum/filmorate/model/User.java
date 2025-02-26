@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,11 +14,13 @@ public class User {
     private Long id;
 
     /**Users email address. */
+    @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Введенный email не соответствует формату email-адресов!")
     private String email;
 
     /**Users login. */
-    @NotBlank(message = "Логин не может быть пустым и содержать пробелы!")
+    @NotBlank(message = "Логин не может быть пустым!")
+    @Pattern(regexp = "\\S+", message = "Логин не может содержать пробелы!")
     private String login;
 
     /**Users name. */
