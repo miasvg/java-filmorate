@@ -76,7 +76,7 @@ public class UserControllerAndValidTest {
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty());
         ConstraintViolation<User> violation = violations.iterator().next();
-        assertEquals("Логин не может содержать пробелы!", violation.getMessage());
+        assertEquals("Логин не может быть пустым!", violation.getMessage());
     }
 
     @Test
