@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a film in the Filmorate application.
@@ -35,4 +37,5 @@ public class Film {
 
     /** Maximum allowed length for the film description. */
     private static final int MAX_DESCRIPTION_LENGTH = 200;
+    private Set<Long> likes = new HashSet<>();
 }
