@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import javax.xml.bind.ValidationException;
+
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -28,12 +31,12 @@ public class FilmController {
     }
 
     @PostMapping
-    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
+    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) throws ValidationException {
         return ResponseEntity.ok(filmService.addFilm(film));
     }
 
     @PutMapping
-    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
+    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) throws NotFoundException {
         return ResponseEntity.ok(filmService.updateFilm(film));
     }
 

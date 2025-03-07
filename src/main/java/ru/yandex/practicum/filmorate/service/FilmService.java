@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import javax.xml.bind.ValidationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,11 +20,11 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
-    public Film addFilm(Film film) {
+    public Film addFilm(Film film) throws ValidationException {
         return filmStorage.addFilm(film);
     }
 
-    public Film updateFilm(Film film) {
+    public Film updateFilm(Film film) throws NotFoundException {
         return filmStorage.updateFilm(film);
     }
 

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 
+import javassist.NotFoundException;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import java.util.HashMap;
@@ -22,8 +23,12 @@ import java.util.ArrayList;
         }
 
         @Override
-        public User updateUser(User user) {
-            users.put(user.getId(), user);
+        public User updateUser(User user) throws NotFoundException {
+            Long userId = user.getId();
+            if (!users.containsKey(userId)) {
+                throw new NotFoundException("Пользователь с ID " + userId + " не найден");
+            }
+            users.replace(userId, user);
             return user;
         }
 

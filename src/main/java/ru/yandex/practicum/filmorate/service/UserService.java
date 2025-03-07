@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
-
-
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
@@ -26,7 +24,7 @@ public class UserService {
         return userStorage.addUser(user);
     }
 
-    public User updateUser(User user) {
+    public User updateUser(User user) throws NotFoundException {
         return userStorage.updateUser(user);
     }
 
