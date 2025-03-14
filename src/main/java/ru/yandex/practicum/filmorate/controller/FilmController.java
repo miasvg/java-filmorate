@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
 import javax.xml.bind.ValidationException;
 
 @RestController
@@ -52,8 +51,9 @@ public class FilmController {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+
     @PutMapping("/{id}/like/{userId}")
-    public ResponseEntity<Void> addLike(@PathVariable Long id, @PathVariable Long userId) {
+    public ResponseEntity<Void> addLike(@PathVariable Long id, @PathVariable Long userId) throws NotFoundException {
         filmService.addLike(id, userId);
         return ResponseEntity.ok().build();
     }

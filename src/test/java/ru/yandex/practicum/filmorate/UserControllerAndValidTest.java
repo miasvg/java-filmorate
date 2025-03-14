@@ -5,20 +5,21 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import javassist.NotFoundException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerAndValidTest {
@@ -28,12 +29,18 @@ public class UserControllerAndValidTest {
     private FilmController filmController;
     private InMemoryFilmStorage filmStorage;
     private FilmService filmService;
+    private UserStorage userStorage;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
+        userStorage = new InMemoryUserStorage();
+        userService = new UserService(userStorage);
         filmStorage = new InMemoryFilmStorage();
-        filmService = new FilmService(filmStorage);
+        filmService = new FilmService(filmStorage, userStorage);
         filmController = new FilmController(filmService);
+        userController = new UserController(userService);
+
     }
 
     @Test
@@ -43,6 +50,7 @@ public class UserControllerAndValidTest {
         user.setLogin("testUser");
         user.setName("Test Name");
         user.setBirthday(LocalDate.of(1990, 1, 1));
+        user.setId(1L);
 
         ResponseEntity<User> response = userController.addUser(user);
         assertEquals(200, response.getStatusCodeValue());
@@ -58,11 +66,8 @@ public class UserControllerAndValidTest {
         user.setName("Updated Name");
         user.setBirthday(LocalDate.of(1990, 1, 1));
 
-        ResponseEntity<?> response = userController.updateUser(user);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        Map<String, String> errorResponse = (Map<String, String>) response.getBody();
-        assertNotNull(errorResponse);
-        assertEquals("Пользователь с ID 999 не найден.", errorResponse.get("error"));
+        NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> userController.updateUser(user));
+        assertEquals("Пользователь с ID 999 не найден", exception.getMessage());
     }
 
     @Test

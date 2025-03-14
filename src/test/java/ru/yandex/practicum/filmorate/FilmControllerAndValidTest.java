@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate;
 
 import javassist.NotFoundException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -9,21 +10,22 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.xml.bind.ValidationException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 public class FilmControllerAndValidTest {
     private FilmController filmController;
     private InMemoryFilmStorage filmStorage;
     private FilmService filmService;
+    private UserStorage userStorage;
 
     @BeforeEach
     void setUp() {
         filmStorage = new InMemoryFilmStorage();
-        filmService = new FilmService(filmStorage);
+        filmService = new FilmService(filmStorage, userStorage);
         filmController = new FilmController(filmService);
     }
 
@@ -50,11 +52,11 @@ public class FilmControllerAndValidTest {
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
 
-        ResponseEntity<?> response = filmController.updateFilm(film);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        Map<String, String> errorResponse = (Map<String, String>) response.getBody();
-        assertNotNull(errorResponse);
-        assertEquals("Фильм с ID 999 не найден.", errorResponse.get("error"));
+        NotFoundException exception = Assertions.assertThrows(
+                NotFoundException.class,
+                () -> filmController.updateFilm(film)
+        );
+        assertEquals("Фильм с ID 999 не найден", exception.getMessage());
     }
 
     @Test

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Map;
@@ -26,13 +25,13 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) throws NotFoundException {
- Long id = film.getId();
- if (!films.containsKey(id)) {
-     throw new NotFoundException("Пользователь с ID " + id + " не найден");
- }
- films.replace(id, film);
- return film;
+        Long id = film.getId();
+        if (!films.containsKey(id)) {
+        throw new NotFoundException("Фильм с ID " + id + " не найден");
     }
+        films.put(id, film);
+        return film;
+}
 
 
     @Override

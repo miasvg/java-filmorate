@@ -4,20 +4,26 @@ import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.xml.bind.ValidationException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+
 
 
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public Film addFilm(Film film) throws ValidationException {
@@ -36,13 +42,24 @@ public class FilmService {
         return filmStorage.getFilmById(id);
     }
 
-    public void addLike(Long filmId, Long userId) {
-        Film film = filmStorage.getFilmById(filmId).orElseThrow(() -> new RuntimeException("Film not found"));
+    public Film addLike(Long filmId, Long userId) throws NotFoundException {
+        Film film = filmStorage.getFilmById(filmId)
+                .orElseThrow(() -> new RuntimeException("Film not found"));
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (film.getLikes() == null) {
+            film.setLikes(new HashSet<>()); // Инициализируем, если null
+        }
         film.getLikes().add(userId);
+        filmStorage.updateFilm(film);
+        return film;
     }
+
 
     public void removeLike(Long filmId, Long userId) {
         Film film = filmStorage.getFilmById(filmId).orElseThrow(() -> new RuntimeException("Film not found"));
+        userStorage.getUserById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
         film.getLikes().remove(userId);
     }
 
