@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate;
 
+import javassist.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.LocalDate;
 
@@ -14,15 +17,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class UserServiceTest {
     private UserService userService;
     private InMemoryUserStorage userStorage;
+    private JdbcTemplate jdbcTemplate;
+    private UserDbStorage userDbStorage;
 
     @BeforeEach
     void setUp() {
+        jdbcTemplate = new JdbcTemplate();
+        userDbStorage = new UserDbStorage(jdbcTemplate);
         userStorage = new InMemoryUserStorage();
-        userService = new UserService(userStorage);
+        userService = new UserService(userStorage, userDbStorage);
     }
 
     @Test
-    void testAddFriend() {
+    void testAddFriend() throws NotFoundException {
         User user1 = new User();
         user1.setEmail("user1@example.com");
         user1.setLogin("user1");
@@ -44,7 +51,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void testRemoveFriend() {
+    void testRemoveFriend() throws NotFoundException {
         User user1 = new User();
         user1.setEmail("user1@example.com");
         user1.setLogin("user1");

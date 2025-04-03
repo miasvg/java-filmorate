@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import javassist.NotFoundException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Component
+@Qualifier("InMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
     private long filmIdCounter = 1;

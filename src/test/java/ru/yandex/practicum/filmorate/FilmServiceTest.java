@@ -3,11 +3,11 @@ package ru.yandex.practicum.filmorate;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import javax.xml.bind.ValidationException;
 import java.time.LocalDate;
@@ -17,12 +17,18 @@ public class FilmServiceTest {
     private FilmService filmService;
     private InMemoryFilmStorage filmStorage;
     private InMemoryUserStorage userStorage;
+    private JdbcTemplate jdbcTemplate;
+    private GenreDbStorage genreDbStorage;
+    private GenreStorage genreStorage;
+    private FilmDbStorage filmDbStorage;
 
     @BeforeEach
     void setUp() {
+        jdbcTemplate = new JdbcTemplate();
+        genreDbStorage = new GenreDbStorage(jdbcTemplate);
         userStorage = new InMemoryUserStorage();
         filmStorage = new InMemoryFilmStorage();
-        filmService = new FilmService(filmStorage, userStorage);
+        filmService = new FilmService(filmDbStorage, filmStorage, userStorage, genreStorage);
     }
 
     @Test

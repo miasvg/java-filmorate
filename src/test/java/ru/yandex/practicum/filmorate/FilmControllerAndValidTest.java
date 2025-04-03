@@ -6,11 +6,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import javax.xml.bind.ValidationException;
 import java.time.LocalDate;
@@ -21,16 +21,23 @@ public class FilmControllerAndValidTest {
     private InMemoryFilmStorage filmStorage;
     private FilmService filmService;
     private UserStorage userStorage;
+    private JdbcTemplate jdbcTemplate;
+    private GenreDbStorage genreDbStorage;
+    private FilmDbStorage filmDbStorage;
+    private GenreStorage genreStorage;
 
     @BeforeEach
     void setUp() {
+        filmDbStorage = new FilmDbStorage(jdbcTemplate);
+        jdbcTemplate = new JdbcTemplate();
+        genreDbStorage = new GenreDbStorage(jdbcTemplate);
         filmStorage = new InMemoryFilmStorage();
-        filmService = new FilmService(filmStorage, userStorage);
+        filmService = new FilmService(filmDbStorage, filmStorage, userStorage, genreStorage);
         filmController = new FilmController(filmService);
     }
 
     @Test
-    void testAddFilm() throws ValidationException {
+    void testAddFilm() throws ValidationException, NotFoundException {
         Film film = new Film();
         film.setName("Film1");
         film.setDescription("Description");
@@ -60,7 +67,7 @@ public class FilmControllerAndValidTest {
     }
 
     @Test
-    void testGetAllFilms() throws ValidationException {
+    void testGetAllFilms() throws ValidationException, NotFoundException {
         Film film1 = new Film();
         film1.setName("Film1");
         film1.setDescription("Desc1");

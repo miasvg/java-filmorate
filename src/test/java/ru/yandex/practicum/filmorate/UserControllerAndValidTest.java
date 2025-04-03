@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -31,13 +31,21 @@ public class UserControllerAndValidTest {
     private FilmService filmService;
     private UserStorage userStorage;
     private UserService userService;
+    private JdbcTemplate jdbcTemplate;
+    private UserDbStorage userDbStorage;
+    private GenreDbStorage genreDbStorage;
+    private GenreStorage genreStorage;
+    private FilmDbStorage filmDbStorage;
 
     @BeforeEach
     void setUp() {
+        genreDbStorage = new GenreDbStorage(jdbcTemplate);
+        jdbcTemplate = new JdbcTemplate();
+        userDbStorage = new UserDbStorage(jdbcTemplate);
         userStorage = new InMemoryUserStorage();
-        userService = new UserService(userStorage);
+        userService = new UserService(userStorage, userDbStorage);
         filmStorage = new InMemoryFilmStorage();
-        filmService = new FilmService(filmStorage, userStorage);
+        filmService = new FilmService(filmDbStorage, filmStorage, userStorage, genreStorage);
         filmController = new FilmController(filmService);
         userController = new UserController(userService);
 
