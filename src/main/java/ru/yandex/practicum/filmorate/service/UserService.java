@@ -7,9 +7,10 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
-import java.util.ArrayList;
+
 import java.util.Optional;
 import java.util.List;
+
 
 @Service
 public class UserService {
@@ -67,11 +68,7 @@ public class UserService {
 
     public List<User> getFriends(Long userId) {
         User user = userStorage.getUserById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        List<User> friends = new ArrayList<>();
-        for (Long friendId : user.getFriends()) {
-            userStorage.getUserById(friendId).ifPresent(friends::add);
-        }
-        return friends;
+        return userDbStorage.getFriends(userId);
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {

@@ -5,8 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class GenreDbStorage implements GenreStorage {
@@ -32,5 +32,16 @@ public class GenreDbStorage implements GenreStorage {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
+    }
+
+    public Set<Long> getExistingGenreIds(Set<Long> ids) {
+        if (ids.isEmpty()) {
+            return Collections.emptySet();
+        }
+        String sql = "SELECT id FROM genres WHERE id IN (" +
+                ids.stream().map(String::valueOf).collect(Collectors.joining(",")) +
+                ")";
+
+        return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class));
     }
 }

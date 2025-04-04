@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)

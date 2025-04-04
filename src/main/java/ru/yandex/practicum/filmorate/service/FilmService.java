@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,7 +36,7 @@ public class FilmService {
 
     public Film addFilm(Film film) throws NotFoundException, ValidationException {
         validateReleaseDate(film.getReleaseDate());
-        validateGenres(film.getGenres());
+        validateFilmGenres(film.getGenres());
         return filmStorage.addFilm(film);
     }
 
@@ -75,17 +77,23 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
-        List<Film> films = filmStorage.getAllFilms();
-        films.sort((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()));
-        return films.subList(0, Math.min(count, films.size()));
+        return filmDbStorage.getPopularFilms(count);
     }
 
-    private void validateGenres(Set<Genre> genres) throws ValidationException, NotFoundException {
-        if (genres != null) {
-            for (Genre genre : genres) {
-                if (genre.getId() == null || !genreStorage.getGenreById(genre.getId()).isPresent()) {
-                    throw new NotFoundException("Жанр с id " + genre.getId() + " не существует");
-                }
+    private void validateFilmGenres(Set<Genre> genres) throws NotFoundException {
+        if (genres != null && !genres.isEmpty()) {
+            Set<Long> genreIds = genres.stream()
+                    .map(Genre::getId)
+                    .collect(Collectors.toSet());
+
+            // Один запрос для проверки всех жанров
+            Set<Long> existingIds = genreStorage.getExistingGenreIds(genreIds);
+
+            Set<Long> notFoundIds = genreIds.stream()
+                    .filter(id -> !existingIds.contains(id))
+                    .collect(Collectors.toSet());
+            if (!notFoundIds.isEmpty()) {
+                throw new NotFoundException("Не найдены жанры с id: " + notFoundIds);
             }
         }
     }
