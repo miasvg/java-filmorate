@@ -37,5 +37,6 @@ public class Film {
 
     /** Maximum allowed length for the film description. */
     private static final int MAX_DESCRIPTION_LENGTH = 200;
-    private Set<Long> likes = new HashSet<>();
+    private Set<Genre> genres = new HashSet<>();
+    private Mpa mpa;
 }

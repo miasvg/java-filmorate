@@ -30,7 +30,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) throws ValidationException {
+    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) throws ValidationException, NotFoundException {
         return ResponseEntity.ok(filmService.addFilm(film));
     }
 
@@ -59,7 +59,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public ResponseEntity<Void> removeLike(@PathVariable Long id, @PathVariable Long userId) {
+    public ResponseEntity<Void> removeLike(@PathVariable Long id, @PathVariable Long userId) throws NotFoundException {
         filmService.removeLike(id, userId);
         return ResponseEntity.ok().build();
     }
